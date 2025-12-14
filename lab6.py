@@ -7,6 +7,7 @@ import random
 class FileNotFound(Exception):
     pass
 
+
 class FileCorrupted(Exception):
     pass
 
@@ -54,13 +55,16 @@ class YamlWorker:
             os.makedirs(folder, exist_ok=True)
         self.filepath = filepath
 
-    @logged(FileCorrupted, mode="console")
-    def read(self):
-        try:
-            with open(self.filepath, "r", encoding="utf-8") as f:
-                return yaml.safe_load(f) or {}
-        except Exception as e:
-            raise FileCorrupted(f"Помилка читання файлу {self.filepath}: {e}")
+    @logged(FileNotFound, mode="console")
+def read(self):
+    if not os.path.exists(self.filepath):
+        raise FileNotFound(f"Файл {self.filepath} не існує")
+
+    try:
+        with open(self.filepath, "r", encoding="utf-8") as f:
+            return yaml.safe_load(f) or {}
+    except Exception as e:
+        raise FileCorrupted(f"Помилка читання файлу {self.filepath}: {e}")
 
     @logged(FileCorrupted, mode="file")
     def write(self, new_data):
